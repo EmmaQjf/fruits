@@ -3,6 +3,7 @@ require('dotenv').config() //.env file turn the mongodb string into javascript o
 const express = require("express") //imported express from node modules , express is a function
 const mongoose = require('mongoose')
 const jsxEngine = require('jsx-view-engine')
+const methodOverride = require('method-override')
 const Fruit = require('./models/fruit')//get the models/fruit.js and table
 
 const PORT = process.env.PORT || 3000
@@ -31,6 +32,8 @@ app.listen(PORT, () => {
 // middleware starts
 //The URLEncode method applies URL encoding rules, including escape characters, to a specified string. 
 app.use(express.urlencoded({extended: true})) //build a ssr website (html)
+app.use(methodOverride('_method')) // going to be the name of query parameter we will use 
+//everytime we make a new quest, check to what the _method is there or not
 //set up the engine
 app.set('view engine', 'jsx')
 app.engine('jsx', jsxEngine())
@@ -54,11 +57,11 @@ app.get('/fruits', async(req, res)=> {
       } )
     }catch (error) {
       res.status(400).send({message: error.message})
-
     }
 })
 
 // When you execute something synchronously, you wait for it to finish before moving on to another task. When you execute something asynchronously, you can move on to another task before it finishes.
+
 //NEW --show users a form to fill out to create a fruit ; bring the form to user so they can see it
 
 app.get('/fruits/new', (req, res) => {
@@ -67,9 +70,35 @@ app.get('/fruits/new', (req, res) => {
 })
 
 //DELETE ---backend only functionality that is used to delete a fruit
-
+app.delete('/fruits/:id', async (req, res) => {
+  try{
+    await Fruit.findOneAndDelete({_id: req.params.id})
+      .then(() => {
+        res.redirect('/fruits')
+      } )
+  } catch(error) {
+    res.status(400).send({message: error.message})
+  }
+})
 //UPDATE ---backend only functionality that is used to update a fruit
+app.put('/fruits/:id', async(req, res) => {
+    if(req.body.readyToEat === 'on'){
+        req.body.readyToEat = true
+      }else {
+        req.body.readyToEat = false
+      } 
+    try {
+      await Fruit.findOneAndUpdate({_id: req.params.id},
+      req.body, { new: true})
+      .then(() => {
+        res.redirect(`/fruits/${req.params.id}`)
+      })
+    } catch(error) {
+        res.status(400).send({message: error.message})
 
+    }
+    
+})
 
 //CREATE --backend only functionality that is used to create a fruit, when the form is completed ===> the new page is going to send data to the create route
 
@@ -91,6 +120,17 @@ app.post('/fruits', async (req, res) => {
 })
 
 //EDIT --- show you a form that lets you edit the fruit.
+
+app.get('fruits/:id/edit', async(req, res) => {
+    try {
+        const foundFruit = await Fruit.findOne({_id: req.params.id})
+        res.render('fruits/Edit', {
+            fruit: foundFruit
+        })
+    } catch(error) {
+        res.status(400).send({message: error.message})
+    }
+})
 
 //SHOW  -- shows you 1 individual fruit 
 app.get('/fruits/:id', async (req, res) => {
