@@ -1,5 +1,5 @@
 const React = require('react')
-
+//deconstruction later
 function Show(props){
     return(
         <div>

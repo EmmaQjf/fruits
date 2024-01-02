@@ -8,6 +8,8 @@ function Index (props){
                 {
                     props.fruits.map((fruit) => {
                         return (
+                            //by placing the curly braces around the variable css, you are telling the parser "take the contents of the variable css and put them here". (Technically its evaluating the content)
+                            //use curly braces to embed a JavaScript expression in an attribute
                             <li key={fruit._id}>
                                <a href = {`/fruits/${fruit._id}`}>{fruit.name}</a> is {fruit.color}
                             </li>

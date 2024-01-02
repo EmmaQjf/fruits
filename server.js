@@ -88,7 +88,8 @@ app.put('/fruits/:id', async(req, res) => {
         req.body.readyToEat = false
       } 
     try {
-      await Fruit.findOneAndUpdate({_id: req.params.id},
+      //set the new option to true to return the document after update was applied.
+      await Fruit.findOneAndUpdate({'_id': req.params.id},
       req.body, { new: true})
       .then(() => {
         res.redirect(`/fruits/${req.params.id}`)
@@ -121,7 +122,7 @@ app.post('/fruits', async (req, res) => {
 
 //EDIT --- show you a form that lets you edit the fruit.
 
-app.get('fruits/:id/edit', async(req, res) => {
+app.get('/fruits/:id/edit', async(req, res) => {
     try {
         const foundFruit = await Fruit.findOne({_id: req.params.id})
         res.render('fruits/Edit', {
@@ -141,7 +142,6 @@ app.get('/fruits/:id', async (req, res) => {
         }) // the curly braces is the props 
     } catch (error) {
         res.status(400).send({message: error.message})
-
     }
 })
 
